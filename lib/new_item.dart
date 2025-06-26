@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_list_app/data/categories.dart';
+import 'package:shopping_list_app/models/category.dart';
+import 'package:shopping_list_app/models/grocery_items.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -9,6 +11,22 @@ class NewItem extends StatefulWidget {
 }
 
 class _NewItemState extends State<NewItem> {
+   String? itemName="";
+   int quantity = 1;
+   var selectedCategory = categories[Categories.vegetables];
+  void saveItem() {
+  // Logic to save the item
+  // This function can be called when the form is submitted
+  if(_formkey.currentState!.validate()) {
+          _formkey.currentState!.save(); 
+          Navigator.of(context).pop(
+            GroceryItem(id: TimeOfDay.now().toString(), name: itemName.toString(), quantity: quantity, category: selectedCategory!),
+          );
+          // If the form is not valid, do not proceed
+  }
+ 
+
+}
   final _formkey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -41,6 +59,13 @@ class _NewItemState extends State<NewItem> {
                 }
                 return null;
               },
+              onSaved: (value) {
+                // Save the item name
+                // This can be used later to save the item in a database or list
+                itemName = value;
+                 print(itemName);
+              },
+             
             ),
             SizedBox(
               height: 20,
@@ -67,13 +92,21 @@ class _NewItemState extends State<NewItem> {
                       }
                       return null;
                     },
+                    onSaved: (ValueKey){
+                      quantity = int.parse(ValueKey!);
+                      // Save the quantity
+                      // This can be used later to save the item in a database or list
+                      print(quantity);
+                    },
                   ),
                 ),
                 SizedBox(
                   width: 16,
                 ),
                 Expanded(
-                    child: DropdownButtonFormField(items: [
+                    child: DropdownButtonFormField(
+                      value: selectedCategory,
+                      items: [
                   for (var category in categories.entries)
                     DropdownMenuItem(
                       value: category.value,
@@ -89,7 +122,13 @@ class _NewItemState extends State<NewItem> {
                         ],
                       ),
                     ),
-                ], onChanged: (value) {}))
+                ], onChanged: (value) {
+                    setState(() {
+                      selectedCategory=value!;
+                      print(selectedCategory);
+                    });
+
+                }))
               ],
             ),
             SizedBox(
@@ -113,7 +152,7 @@ class _NewItemState extends State<NewItem> {
             ),
             ElevatedButton(
               onPressed: () {
-                _formkey.currentState!.validate();
+                saveItem();
               },
               child: Text("Add Item"),
               style: TextButton.styleFrom(
