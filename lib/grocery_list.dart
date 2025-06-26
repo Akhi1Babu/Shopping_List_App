@@ -11,6 +11,7 @@ class GroceryList extends StatefulWidget {
 }
 
 class _GroceryListState extends State<GroceryList> {
+  bool isEmpty=false;
    List<GroceryItem> _groceryItems = [];
   void _addNewItem() async {
     final  newitem= await Navigator.of(context).push<GroceryItem>(MaterialPageRoute(builder: (context)=>  NewItem() ),) ;
@@ -21,6 +22,7 @@ class _GroceryListState extends State<GroceryList> {
       });
     }
     else{
+      isEmpty=true;
       return;
     }
   }
@@ -41,18 +43,43 @@ class _GroceryListState extends State<GroceryList> {
           ),
         ],
       ),
-      body: ListView.builder(
+      body: isEmpty ? const Center(
+        child: Text('No items in the list. Please add some items.'),
+      ) : _groceryItems.isEmpty ? const Center(
+        child: Text('No items in the list. Please add some items.'),
+      ) :
+      
+      ListView.builder(
         itemCount: _groceryItems.length,
         itemBuilder: (context,index){
-        return ListTile(
-            title: Text(_groceryItems[index].name ),
-            leading: CircleAvatar(
-              backgroundColor: _groceryItems[index].category.color,
-              child: Text(_groceryItems[index].quantity.toString()),
-            ),
-            trailing: Text(
-              _groceryItems[index].quantity.toString()
-            ),
+        return Dismissible(
+          key: ValueKey(_groceryItems[index].name),
+           direction: DismissDirection.endToStart, // Swipe right-to-left
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      onDismissed: (direction) {
+        setState(() {
+          _groceryItems.removeAt(index);
+          if(_groceryItems.isEmpty) {
+            isEmpty=true;
+          }
+        });
+      }
+      ,
+          child: ListTile(
+              title: Text(_groceryItems[index].name ),
+              leading: CircleAvatar(
+                backgroundColor: _groceryItems[index].category.color,
+                child: Text(_groceryItems[index].quantity.toString()),
+              ),
+              trailing: Text(
+                _groceryItems[index].quantity.toString()
+              ),
+          ),
         );
       })
     );
