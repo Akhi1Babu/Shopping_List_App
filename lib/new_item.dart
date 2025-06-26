@@ -9,6 +9,7 @@ class NewItem extends StatefulWidget {
 }
 
 class _NewItemState extends State<NewItem> {
+  final _formkey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,10 +19,13 @@ class _NewItemState extends State<NewItem> {
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Form(
+          
+               key: _formkey,
             child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             TextFormField(
+         
               decoration: InputDecoration(
                 labelText: 'Item Name',
                 border: OutlineInputBorder(
@@ -32,10 +36,15 @@ class _NewItemState extends State<NewItem> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter an item name';
                 }
+                if (value.length < 3) {
+                  return 'Item name must be at least 3 characters long';
+                }
                 return null;
               },
             ),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Row(
               children: [
                 Expanded(
@@ -51,6 +60,10 @@ class _NewItemState extends State<NewItem> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a quantity';
+                      } else if (int.tryParse(value) == null) {
+                        return 'Please enter a valid number';
+                      } else if (int.parse(value) <= 0) {
+                        return 'Quantity must be greater than 0';
                       }
                       return null;
                     },
@@ -78,6 +91,38 @@ class _NewItemState extends State<NewItem> {
                     ),
                 ], onChanged: (value) {}))
               ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            TextButton(
+              onPressed: () {
+                _formkey.currentState!.reset();
+              },
+              child: Text("Reset"),
+              style: TextButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 30, 133, 193),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  )),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _formkey.currentState!.validate();
+              },
+              child: Text("Add Item"),
+              style: TextButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 30, 133, 193),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  )),
             )
           ],
         )),
